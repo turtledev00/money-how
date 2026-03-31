@@ -24,3 +24,11 @@ export interface Category {
   name: string;
   amount: number;
 }
+
+// legacy editor compatibility
+export interface FinancialData {
+  title: string;
+  unit: string;
+  incomes: Category[];
+  expenses: Category[];
+}
