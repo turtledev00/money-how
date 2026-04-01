@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { sankey as sankeyGenerator, sankeyLeft } from "d3-sankey";
 import type { FlowData } from "@/lib/types";
+
+const DIAGRAM_WIDTH = 900;
+const DIAGRAM_HEIGHT = 540;
 
 function bandPath(link: {
   source: { x1: number };
@@ -37,27 +40,13 @@ type SNode = any;
 type SLink = any;
 
 export default function SankeyDiagram({ data }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState({ width: 900, height: 540 });
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver((entries) => {
-      const w = entries[0].contentRect.width;
-      const h = Math.max(400, Math.min(700, w * 0.58));
-      setDims({ width: w, height: h });
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   const graph = useMemo(() => {
     if (!data.nodes.length || !data.links.length) return null;
 
     const nodeCount = data.nodes.length;
-    const pad = Math.max(6, Math.min(16, (dims.height * 0.7) / nodeCount));
+    const pad = Math.max(6, Math.min(16, (DIAGRAM_HEIGHT * 0.7) / nodeCount));
     const margin = { top: 24, right: 160, bottom: 24, left: 160 };
 
     const layout = sankeyGenerator<SNode, SLink>()
@@ -67,7 +56,7 @@ export default function SankeyDiagram({ data }: Props) {
       .nodeAlign(sankeyLeft)
       .extent([
         [margin.left, margin.top],
-        [dims.width - margin.right, dims.height - margin.bottom],
+        [DIAGRAM_WIDTH - margin.right, DIAGRAM_HEIGHT - margin.bottom],
       ]);
 
     const nodes = data.nodes.map((n) => ({ ...n }));
@@ -78,12 +67,11 @@ export default function SankeyDiagram({ data }: Props) {
     } catch {
       return null;
     }
-  }, [data, dims]);
+  }, [data]);
 
   if (!graph) {
     return (
       <div
-        ref={containerRef}
         className="w-full h-64 flex items-center justify-center text-gray-400 text-sm"
       >
         데이터를 입력하거나 노드/링크를 추가해주세요
@@ -115,13 +103,14 @@ export default function SankeyDiagram({ data }: Props) {
   };
 
   return (
-    <div ref={containerRef} className="w-full overflow-x-auto">
+    <div className="w-full">
       <svg
         id="sankey-svg"
-        width={dims.width}
-        height={dims.height}
-        className="select-none"
-        style={{ minWidth: 480 }}
+        width={DIAGRAM_WIDTH}
+        height={DIAGRAM_HEIGHT}
+        viewBox={`0 0 ${DIAGRAM_WIDTH} ${DIAGRAM_HEIGHT}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="select-none block w-full h-auto"
       >
         <defs>
           {graph.links.map((link: SLink, i: number) => {

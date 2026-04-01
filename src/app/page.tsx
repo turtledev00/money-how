@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import SankeyDiagram from "@/components/SankeyDiagram";
 import SimpleEditor from "@/components/SimpleEditor";
 import { buildFlowData } from "@/lib/buildSimpleFlow";
@@ -77,12 +78,17 @@ export default function Home() {
       <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <h1 className="text-lg font-bold text-slate-800 tracking-tight shrink-0">
-            💰 머니하우
+            <span className="inline-flex items-center gap-2">
+              <Image
+                src="/ssseregi_logo.png"
+                alt="SSSEREGI logo"
+                width={18}
+                height={18}
+                className="rounded-sm"
+              />
+              <span>@SSSEREGI</span>
+            </span>
           </h1>
-
-          <div className="px-3 py-1 text-xs font-medium rounded-md bg-gray-100 text-slate-700">
-            직접만들기
-          </div>
         </div>
       </header>
 

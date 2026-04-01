@@ -1,12 +1,14 @@
 const TITLE_HEIGHT = 56; // 제목 영역 높이 (px)
 const FOOTER_HEIGHT = 28; // 하단 여백
+const FOOTER_BRAND_TEXT = "SSSEREGI";
+const FOOTER_LOGO_SRC = "/ssseregi_logo.png";
 
 export async function downloadDiagramAsPng(filename = "흐름도"): Promise<void> {
   const svg = document.getElementById("sankey-svg") as SVGSVGElement | null;
   if (!svg) return;
 
-  const svgWidth = svg.clientWidth || svg.viewBox.baseVal.width || 900;
-  const svgHeight = svg.clientHeight || svg.viewBox.baseVal.height || 540;
+  const svgWidth = svg.width.baseVal.value || svg.viewBox.baseVal.width || svg.clientWidth || 900;
+  const svgHeight = svg.height.baseVal.value || svg.viewBox.baseVal.height || svg.clientHeight || 540;
   const totalHeight = svgHeight + TITLE_HEIGHT + FOOTER_HEIGHT;
   const scale = 2;
 
@@ -14,6 +16,7 @@ export async function downloadDiagramAsPng(filename = "흐름도"): Promise<void
   cloned.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   cloned.setAttribute("width", String(svgWidth));
   cloned.setAttribute("height", String(svgHeight));
+  cloned.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
 
   // text 엘리먼트에 font-family 인라인 적용
   cloned.querySelectorAll("text").forEach((el) => {
@@ -63,24 +66,53 @@ export async function downloadDiagramAsPng(filename = "흐름도"): Promise<void
       ctx.fillRect(0, TITLE_HEIGHT, svgWidth, svgHeight);
       ctx.drawImage(img, 0, TITLE_HEIGHT, svgWidth, svgHeight);
 
-      // 하단 워터마크
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = `12px system-ui, -apple-system, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("💰 머니하우", svgWidth / 2, TITLE_HEIGHT + svgHeight + FOOTER_HEIGHT / 2);
+      const finalize = () => {
+        URL.revokeObjectURL(url);
 
-      URL.revokeObjectURL(url);
+        canvas.toBlob((pngBlob) => {
+          if (!pngBlob) { reject(); return; }
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(pngBlob);
+          a.download = `${filename}.png`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          resolve();
+        }, "image/png");
+      };
 
-      canvas.toBlob((pngBlob) => {
-        if (!pngBlob) { reject(); return; }
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(pngBlob);
-        a.download = `${filename}.png`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-        resolve();
-      }, "image/png");
+      const footerY = TITLE_HEIGHT + svgHeight + FOOTER_HEIGHT / 2;
+      const drawFooterTextOnly = () => {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = `12px system-ui, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(FOOTER_BRAND_TEXT, svgWidth / 2, footerY);
+      };
+
+      const logo = new Image();
+      logo.onload = () => {
+        ctx.font = `12px system-ui, -apple-system, sans-serif`;
+        const textWidth = ctx.measureText(FOOTER_BRAND_TEXT).width;
+        const logoSize = 12;
+        const gap = 6;
+        const groupWidth = logoSize + gap + textWidth;
+        const startX = svgWidth / 2 - groupWidth / 2;
+
+        ctx.drawImage(logo, startX, footerY - logoSize / 2, logoSize, logoSize);
+
+        ctx.fillStyle = "#94a3b8";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(FOOTER_BRAND_TEXT, startX + logoSize + gap, footerY);
+        finalize();
+      };
+
+      logo.onerror = () => {
+        drawFooterTextOnly();
+        finalize();
+      };
+
+      logo.src = FOOTER_LOGO_SRC;
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(); };
     img.src = url;
