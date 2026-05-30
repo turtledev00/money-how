@@ -3,10 +3,56 @@
 import React from "react";
 import type { SimpleItem, SimpleData, ExpenseNode } from "@/lib/buildSimpleFlow";
 import { getExpenseTotal } from "@/lib/buildSimpleFlow";
+import UnitSelect from "@/components/UnitSelect";
 
 let _seq = 300;
 const uid = () => String(++_seq);
 const UNIT_OPTIONS = ["원", "만원", "백만원"];
+
+function RowActionButton({
+  label,
+  tone,
+  onClick,
+  children,
+}: {
+  label: string;
+  tone: "green" | "red";
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const toneClass =
+    tone === "green"
+      ? "border-green-200 bg-green-50 text-green-700 hover:border-green-300 hover:bg-green-100 focus:ring-green-200"
+      : "border-red-200 bg-red-50 text-red-600 hover:border-red-300 hover:bg-red-100 focus:ring-red-200";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`grid size-8 shrink-0 place-items-center rounded-lg border transition-colors focus:outline-none focus:ring-2 ${toneClass}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M12 5v14m7-7H5" />
+    </svg>
+  );
+}
+
+function MinusIcon() {
+  return (
+    <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M6 12h12" />
+    </svg>
+  );
+}
 
 // ── 수입 행 ────────────────────────────────────────────────
 function IncomeRow({
@@ -19,7 +65,7 @@ function IncomeRow({
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 group">
+    <div className="flex items-center gap-2">
       <div className="w-1 h-8 rounded-full shrink-0 bg-green-400" />
       <input
         type="text"
@@ -35,14 +81,9 @@ function IncomeRow({
         placeholder="0"
         className="w-24 shrink-0 px-2.5 py-1.5 text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-200 transition-shadow tabular-nums"
       />
-      <button
-        onClick={onDelete}
-        className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all shrink-0"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+      <RowActionButton label="수입 항목 삭제" tone="red" onClick={onDelete}>
+        <MinusIcon />
+      </RowActionButton>
     </div>
   );
 }
@@ -90,7 +131,7 @@ function ExpenseTreeRow({
   return (
     <div>
       {/* 이 노드 행 */}
-      <div className="flex items-center gap-2 group" style={{ paddingLeft: indent }}>
+      <div className="flex items-center gap-2" style={{ paddingLeft: indent }}>
         {/* 들여쓰기 인디케이터 */}
         {depth > 0 && (
           <div className="flex items-center shrink-0" style={{ marginLeft: -12 }}>
@@ -124,26 +165,14 @@ function ExpenseTreeRow({
         )}
 
         {/* 하위 항목 추가 버튼 */}
-        <button
-          onClick={addChild}
-          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-slate-600 transition-all shrink-0"
-          title="하위 항목 추가"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
+        <RowActionButton label={`${node.name || "항목"} 하위 항목 추가`} tone="green" onClick={addChild}>
+          <PlusIcon />
+        </RowActionButton>
 
         {/* 삭제 버튼 */}
-        <button
-          onClick={onDelete}
-          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all shrink-0"
-          title="삭제"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <RowActionButton label={`${node.name || "항목"} 삭제`} tone="red" onClick={onDelete}>
+          <MinusIcon />
+        </RowActionButton>
       </div>
 
       {/* 자식 노드들 */}
@@ -198,15 +227,11 @@ export default function SimpleEditor({ data, onChange }: Props) {
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-500 shrink-0">단위</label>
-          <select
+          <UnitSelect
             value={data.unit}
-            onChange={(e) => onChange({ ...data, unit: e.target.value })}
-            className="w-28 px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition-shadow"
-          >
-            {availableUnitOptions.map((unit) => (
-              <option key={unit} value={unit}>{unit}</option>
-            ))}
-          </select>
+            options={availableUnitOptions}
+            onChange={(unit) => onChange({ ...data, unit })}
+          />
         </div>
       </div>
 
@@ -262,9 +287,10 @@ export default function SimpleEditor({ data, onChange }: Props) {
           </div>
           <button
             onClick={addIncome}
-            className="mt-3 w-full py-2 text-sm text-green-600 border border-dashed border-green-300 rounded-lg hover:bg-green-50 transition-colors"
+            className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-green-300 bg-green-50/60 py-2 text-sm font-medium text-green-700 transition-colors hover:border-green-400 hover:bg-green-100"
           >
-            + 수입 항목 추가
+            <PlusIcon />
+            수입 항목 추가
           </button>
         </div>
 
@@ -292,14 +318,14 @@ export default function SimpleEditor({ data, onChange }: Props) {
           </div>
           <button
             onClick={addExpense}
-            className="mt-3 w-full py-2 text-sm text-red-500 border border-dashed border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+            className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-red-300 bg-red-50/60 py-2 text-sm font-medium text-red-600 transition-colors hover:border-red-400 hover:bg-red-100"
           >
-            + 지출 항목 추가
+            <PlusIcon />
+            지출 항목 추가
           </button>
 
           <p className="mt-3 text-xs text-gray-400 leading-relaxed">
-            각 항목 위에 마우스를 올리면 <span className="font-medium text-gray-500">+</span> 버튼으로 하위 항목을 추가할 수 있습니다.
-            상위 항목의 금액은 하위 합산으로 자동 계산됩니다.
+            초록 + 버튼으로 하위 항목을 추가할 수 있습니다. 상위 항목의 금액은 하위 합산으로 자동 계산됩니다.
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 const TITLE_HEIGHT = 56; // 제목 영역 높이 (px)
 const FOOTER_HEIGHT = 28; // 하단 여백
-const FOOTER_BRAND_TEXT = "SSSEREGI";
+const FOOTER_BRAND_TEXT = "벌고 쓸까  @SSSEREGI";
 const FOOTER_LOGO_SRC = "/ssseregi_logo.png";
 
 export async function downloadDiagramAsPng(filename = "흐름도"): Promise<void> {

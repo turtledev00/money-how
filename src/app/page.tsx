@@ -77,18 +77,24 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-          <h1 className="text-lg font-bold text-slate-800 tracking-tight shrink-0">
-            <span className="inline-flex items-center gap-2">
-              <Image
-                src="/ssseregi_logo.png"
-                alt="SSSEREGI logo"
-                width={18}
-                height={18}
-                className="rounded-sm"
-              />
-              <span>@SSSEREGI</span>
-            </span>
+          <h1 className="inline-flex items-center gap-2 text-lg font-bold text-slate-900 tracking-tight shrink-0">
+            <Image
+              src="/ssseregi_logo.png"
+              alt="SSSEREGI logo"
+              width={24}
+              height={24}
+              className="rounded-sm"
+            />
+            <span>벌고 쓸까</span>
           </h1>
+          <a
+            href="https://litt.ly/ssseregi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto text-sm font-semibold text-slate-700 transition-colors hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-300 rounded-md"
+          >
+            @SSSEREGI
+          </a>
         </div>
       </header>
 
@@ -175,9 +181,6 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="mt-auto py-6 text-center text-xs text-gray-400">
-        돈의 흐름을 한눈에 — 머니하우
-      </footer>
     </div>
   );
 }

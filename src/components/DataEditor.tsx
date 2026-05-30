@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Category, FinancialData } from "@/lib/types";
+import UnitSelect from "@/components/UnitSelect";
 
 interface Props {
   data: FinancialData;
@@ -124,15 +125,11 @@ export default function DataEditor({ data, onChange }: Props) {
       <div className="md:col-span-2 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium text-gray-500">단위</label>
-          <select
+          <UnitSelect
             value={data.unit}
-            onChange={(e) => onChange({ ...data, unit: e.target.value })}
-            className="w-28 px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition-shadow"
-          >
-            {availableUnitOptions.map((unit) => (
-              <option key={unit} value={unit}>{unit}</option>
-            ))}
-          </select>
+            options={availableUnitOptions}
+            onChange={(unit) => onChange({ ...data, unit })}
+          />
         </div>
         <div className="ml-auto text-sm">
           {diff > 0 && (

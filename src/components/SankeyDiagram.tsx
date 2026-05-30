@@ -102,6 +102,43 @@ export default function SankeyDiagram({ data }: Props) {
     return connectedIds.has(key);
   };
 
+  const getNodeLabelData = (node: SNode) => {
+    const h = Math.max(3, node.y1 - node.y0);
+    const cx = (node.x0 + node.x1) / 2;
+    const cy = (node.y0 + node.y1) / 2;
+    const active = isActive(node.id);
+
+    const hasOut = graph.links.some(
+      (l: SLink) => (l.source as SNode).id === node.id
+    );
+    const hasIn = graph.links.some(
+      (l: SLink) => (l.target as SNode).id === node.id
+    );
+    const isFirst = !hasIn;
+    const isLast = !hasOut;
+
+    const nodeValue = isFirst
+      ? graph.links
+          .filter((l: SLink) => (l.source as SNode).id === node.id)
+          .reduce((s: number, l: SLink) => s + l.value, 0)
+      : graph.links
+          .filter((l: SLink) => (l.target as SNode).id === node.id)
+          .reduce((s: number, l: SLink) => s + l.value, 0);
+
+    return {
+      h,
+      cx,
+      cy,
+      active,
+      isFirst,
+      isLast,
+      nodeValue,
+      nameParts: node.name.split("\n"),
+    };
+  };
+
+  const labelTextClass = "[paint-order:stroke] [stroke:#fff] [stroke-width:4px] [stroke-linejoin:round]";
+
   return (
     <div className="w-full">
       <svg
@@ -156,32 +193,8 @@ export default function SankeyDiagram({ data }: Props) {
         {/* Nodes */}
         <g>
           {graph.nodes.map((node: SNode) => {
-            const h = Math.max(3, node.y1 - node.y0);
-            const cx = (node.x0 + node.x1) / 2;
-            const cy = (node.y0 + node.y1) / 2;
-            const active = isActive(node.id);
+            const { h, active } = getNodeLabelData(node);
             const nodeColor = node.color ?? "#94a3b8";
-
-            // determine if last column (no outgoing links)
-            const hasOut = graph.links.some(
-              (l: SLink) => (l.source as SNode).id === node.id
-            );
-            const hasIn = graph.links.some(
-              (l: SLink) => (l.target as SNode).id === node.id
-            );
-            const isFirst = !hasIn;
-            const isLast = !hasOut;
-
-            // total value for this node
-            const nodeValue = isFirst
-              ? graph.links
-                  .filter((l: SLink) => (l.source as SNode).id === node.id)
-                  .reduce((s: number, l: SLink) => s + l.value, 0)
-              : graph.links
-                  .filter((l: SLink) => (l.target as SNode).id === node.id)
-                  .reduce((s: number, l: SLink) => s + l.value, 0);
-
-            const nameParts = node.name.split("\n");
 
             return (
               <g
@@ -199,8 +212,18 @@ export default function SankeyDiagram({ data }: Props) {
                   fill={nodeColor}
                   rx={3}
                 />
+              </g>
+            );
+          })}
+        </g>
 
-                {/* Left-side labels (first column) */}
+        {/* Labels */}
+        <g pointerEvents="none">
+          {graph.nodes.map((node: SNode) => {
+            const { cx, cy, active, isFirst, isLast, nodeValue, nameParts } = getNodeLabelData(node);
+
+            return (
+              <g key={`${node.id}-label`} opacity={active ? 1 : 0.2}>
                 {isFirst && (
                   <g>
                     <text
@@ -210,6 +233,7 @@ export default function SankeyDiagram({ data }: Props) {
                       fontSize={12}
                       fontWeight={700}
                       fill="#1e293b"
+                      className={labelTextClass}
                     >
                       {nameParts[0]}
                     </text>
@@ -221,6 +245,7 @@ export default function SankeyDiagram({ data }: Props) {
                         fontSize={12}
                         fontWeight={700}
                         fill="#1e293b"
+                        className={labelTextClass}
                       >
                         {nameParts[1]}
                       </text>
@@ -231,13 +256,13 @@ export default function SankeyDiagram({ data }: Props) {
                       textAnchor="end"
                       fontSize={11}
                       fill="#64748b"
+                      className={labelTextClass}
                     >
                       {nodeValue.toLocaleString()}{data.unit}
                     </text>
                   </g>
                 )}
 
-                {/* Right-side labels (last column) */}
                 {isLast && (
                   <g>
                     <text
@@ -247,6 +272,7 @@ export default function SankeyDiagram({ data }: Props) {
                       fontSize={12}
                       fontWeight={700}
                       fill="#1e293b"
+                      className={labelTextClass}
                     >
                       {nameParts[0]}
                     </text>
@@ -258,6 +284,7 @@ export default function SankeyDiagram({ data }: Props) {
                         fontSize={12}
                         fontWeight={700}
                         fill="#1e293b"
+                        className={labelTextClass}
                       >
                         {nameParts[1]}
                       </text>
@@ -268,13 +295,13 @@ export default function SankeyDiagram({ data }: Props) {
                       textAnchor="start"
                       fontSize={11}
                       fill="#64748b"
+                      className={labelTextClass}
                     >
                       {nodeValue.toLocaleString()}{data.unit}
                     </text>
                   </g>
                 )}
 
-                {/* Middle nodes */}
                 {!isFirst && !isLast && (
                   <g>
                     <text
@@ -284,6 +311,7 @@ export default function SankeyDiagram({ data }: Props) {
                       fontSize={11}
                       fontWeight={700}
                       fill="#1e293b"
+                      className={labelTextClass}
                     >
                       {nameParts[0]}
                     </text>
@@ -295,6 +323,7 @@ export default function SankeyDiagram({ data }: Props) {
                         fontSize={11}
                         fontWeight={700}
                         fill="#1e293b"
+                        className={labelTextClass}
                       >
                         {nameParts[1]}
                       </text>
@@ -305,12 +334,12 @@ export default function SankeyDiagram({ data }: Props) {
                       textAnchor="middle"
                       fontSize={10}
                       fill="#94a3b8"
+                      className={labelTextClass}
                     >
                       {nodeValue.toLocaleString()}{data.unit}
                     </text>
                   </g>
                 )}
-
               </g>
             );
           })}
