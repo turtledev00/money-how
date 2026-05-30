@@ -8,6 +8,7 @@ import UnitSelect from "@/components/UnitSelect";
 let _seq = 300;
 const uid = () => String(++_seq);
 const UNIT_OPTIONS = ["원", "만원", "백만원"];
+const parseAmountInput = (value: string) => Number(value.replace(/\D/g, "")) || 0;
 
 function RowActionButton({
   label,
@@ -75,11 +76,13 @@ function IncomeRow({
         className="flex-1 min-w-0 px-2.5 py-1.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-200 transition-shadow"
       />
       <input
-        type="number"
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
         value={item.amount || ""}
-        onChange={(e) => onUpdate({ ...item, amount: Math.max(0, Number(e.target.value) || 0) })}
+        onChange={(e) => onUpdate({ ...item, amount: parseAmountInput(e.target.value) })}
         placeholder="0"
-        className="w-24 shrink-0 px-2.5 py-1.5 text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-200 transition-shadow tabular-nums"
+        className="w-24 shrink-0 px-2.5 py-1.5 text-base sm:text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-200 transition-shadow tabular-nums"
       />
       <RowActionButton label="수입 항목 삭제" tone="red" onClick={onDelete}>
         <MinusIcon />
@@ -156,11 +159,13 @@ function ExpenseTreeRow({
           </div>
         ) : (
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={node.amount || ""}
-            onChange={(e) => onUpdate({ ...node, amount: Math.max(0, Number(e.target.value) || 0) })}
+            onChange={(e) => onUpdate({ ...node, amount: parseAmountInput(e.target.value) })}
             placeholder="0"
-            className="w-24 shrink-0 px-2.5 py-1.5 text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-100 transition-shadow tabular-nums"
+            className="w-24 shrink-0 px-2.5 py-1.5 text-base sm:text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-100 transition-shadow tabular-nums"
           />
         )}
 

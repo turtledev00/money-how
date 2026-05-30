@@ -10,6 +10,7 @@ interface Props {
 }
 
 const UNIT_OPTIONS = ["원", "만원", "백만원"];
+const parseAmountInput = (value: string) => Number(value.replace(/\D/g, "")) || 0;
 
 function CategoryRow({
   category,
@@ -37,16 +38,18 @@ function CategoryRow({
       />
       <div className="relative shrink-0">
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={category.amount || ""}
           onChange={(e) =>
             onUpdate({
               ...category,
-              amount: Math.max(0, Number(e.target.value) || 0),
+              amount: parseAmountInput(e.target.value),
             })
           }
           placeholder="0"
-          className="w-24 px-2.5 py-1.5 text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent transition-shadow tabular-nums"
+          className="w-24 px-2.5 py-1.5 text-base sm:text-sm text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent transition-shadow tabular-nums"
         />
       </div>
       <button

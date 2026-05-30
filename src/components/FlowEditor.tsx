@@ -11,6 +11,7 @@ const PRESET_COLORS = [
 ];
 
 const UNIT_OPTIONS = ["원", "만원", "백만원"];
+const parseAmountInput = (value: string) => Number(value.replace(/\D/g, "")) || 0;
 
 let _seq = 200;
 const uid = () => String(++_seq);
@@ -197,13 +198,15 @@ export default function FlowEditor({ data, onChange }: Props) {
                   ))}
                 </select>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={link.value || ""}
                   onChange={(e) =>
-                    updateLink(i, { ...link, value: Math.max(0, Number(e.target.value) || 0) })
+                    updateLink(i, { ...link, value: parseAmountInput(e.target.value) })
                   }
                   placeholder="0"
-                  className="w-20 shrink-0 px-2 py-1.5 text-xs text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition-shadow tabular-nums"
+                  className="w-20 shrink-0 px-2 py-1.5 text-base sm:text-xs text-right border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 transition-shadow tabular-nums"
                 />
                 <button
                   onClick={() => deleteLink(link.id)}

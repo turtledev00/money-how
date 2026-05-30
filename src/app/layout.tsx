@@ -15,8 +15,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: "벌고 쓸까 - 수입/지출 흐름 시각화",
   description:
     "어디서 벌고, 어디에 쓰는지 한눈에 보세요. Sankey 다이어그램으로 재무 흐름을 시각화합니다.",
@@ -27,12 +31,26 @@ export const metadata: Metadata = {
     siteName: "벌고 쓸까",
     locale: "ko_KR",
     type: "website",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1800,
+        height: 1248,
+        alt: "쓰레기는 어떻게 벌고 쓸까",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "벌고 쓸까 - 수입/지출 흐름 시각화",
     description:
       "어디서 벌고, 어디에 쓰는지 한눈에 보세요. Sankey 다이어그램으로 재무 흐름을 시각화합니다.",
+    images: [
+      {
+        url: "/twitter-image.png",
+        alt: "쓰레기는 어떻게 벌고 쓸까",
+      },
+    ],
   },
 };
 
