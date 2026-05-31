@@ -13,17 +13,16 @@ const EMPTY_SIMPLE: SimpleData = {
   title: "나의 흐름도",
   unit: "만원",
   incomes: [
-    { id: "i1", name: "급여", amount: 0 },
+    { id: "i1", name: "월급", amount: 200 },
   ],
   expenses: [
     {
-      id: "e1", name: "고정지출", amount: 0, children: [
-        { id: "e1a", name: "주거비", amount: 0, children: [] },
-        { id: "e1b", name: "보험", amount: 0, children: [] },
+      id: "e1", name: "생활비", amount: 0, children: [
+        { id: "e1a", name: "식비", amount: 45, children: [] },
+        { id: "e1b", name: "교통비", amount: 15, children: [] },
       ],
     },
-    { id: "e2", name: "생활비", amount: 0, children: [] },
-    { id: "e3", name: "저축", amount: 0, children: [] },
+    { id: "e2", name: "저축", amount: 120, children: [] },
   ],
 };
 
